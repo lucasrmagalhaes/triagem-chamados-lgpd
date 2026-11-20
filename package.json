@@ -1,0 +1,42 @@
+{
+  "name": "triagem-chamados-lgpd",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Triagem de chamados de suporte com mascaramento LGPD, agente e avaliacao.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "start:dev": "tsx watch src/main.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "dataset": "tsx scripts/gerar-dataset.ts",
+    "migrar": "tsx scripts/migrar.ts",
+    "seed": "tsx scripts/seed.ts",
+    "avaliar": "tsx scripts/avaliar.ts"
+  },
+  "dependencies": {
+    "@langfuse/otel": "^6.1.1",
+    "@langfuse/tracing": "^6.1.1",
+    "@langfuse/vercel-ai-sdk": "^6.1.1",
+    "@nestjs/common": "^12.5.1",
+    "@nestjs/core": "^12.5.1",
+    "@nestjs/platform-express": "^12.5.1",
+    "@opentelemetry/sdk-node": "^0.223.2",
+    "ai": "^7.0.177",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}

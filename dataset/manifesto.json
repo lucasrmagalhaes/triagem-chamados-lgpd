@@ -1,0 +1,38 @@
+{
+  "semente": 42,
+  "estilo": "informal com giria, erro de digitacao, mistura de assuntos e caso ambiguo",
+  "total": 300,
+  "categorias": {
+    "acesso": 50,
+    "pagamento": 49,
+    "bug": 51,
+    "cadastro": 50,
+    "entrega": 50,
+    "duvida": 50
+  },
+  "prioridades": {
+    "baixa": 72,
+    "media": 110,
+    "alta": 80,
+    "urgente": 38
+  },
+  "filas": {
+    "fila_acessos": 42,
+    "fila_infra": 8,
+    "fila_financeiro": 47,
+    "fila_engenharia": 41,
+    "fila_atendimento": 62,
+    "fila_cadastro": 50,
+    "fila_logistica": 50
+  },
+  "splits": {
+    "avaliacao": 61,
+    "treino": 239
+  },
+  "tipos": {
+    "ambiguo": 78,
+    "misto": 99,
+    "direto": 123
+  },
+  "comPii": 146
+}

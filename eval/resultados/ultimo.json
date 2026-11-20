@@ -1,0 +1,347 @@
+{
+  "geradoEm": "2026-11-20T02:41:55.649Z",
+  "holdout": 61,
+  "treino": 239,
+  "limiar": 0.72,
+  "fontePrecos": "catalogo-2026-11-20",
+  "observacao": "Sem chamada de LLM. Defina AI_GATEWAY_API_KEY e AVALIACAO_REAL=true para preencher o comparativo de custo e acuracia. Os numeros abaixo sao do classificador heuristico local.",
+  "modelos": [
+    {
+      "modelo": "heuristico-local",
+      "modo": "heuristico",
+      "n": 61,
+      "latenciaMediaMs": 0.5245901639344263,
+      "tokensEntrada": 0,
+      "tokensSaida": 0,
+      "custoEstimadoUsd": null,
+      "taxaRevisao": 0.7540983606557377,
+      "acuraciaCategoriaAcimaDoLimiar": 0.8,
+      "acuraciaCategoriaAbaixoDoLimiar": 0.5434782608695652,
+      "categoria": {
+        "acuracia": 0.6065573770491803,
+        "f1Macro": 0.6247152194211018,
+        "f1Ponderado": 0.6259493961519034,
+        "porClasse": [
+          {
+            "classe": "acesso",
+            "precisao": 1,
+            "recall": 0.7,
+            "f1": 0.8235294117647058,
+            "suporte": 10
+          },
+          {
+            "classe": "pagamento",
+            "precisao": 1,
+            "recall": 0.5,
+            "f1": 0.6666666666666666,
+            "suporte": 10
+          },
+          {
+            "classe": "bug",
+            "precisao": 0.7777777777777778,
+            "recall": 0.6363636363636364,
+            "f1": 0.7000000000000001,
+            "suporte": 11
+          },
+          {
+            "classe": "cadastro",
+            "precisao": 0.5714285714285714,
+            "recall": 0.8,
+            "f1": 0.6666666666666666,
+            "suporte": 10
+          },
+          {
+            "classe": "entrega",
+            "precisao": 0.5454545454545454,
+            "recall": 0.6,
+            "f1": 0.5714285714285713,
+            "suporte": 10
+          },
+          {
+            "classe": "duvida",
+            "precisao": 0.26666666666666666,
+            "recall": 0.4,
+            "f1": 0.32,
+            "suporte": 10
+          }
+        ],
+        "matriz": {
+          "rotulos": [
+            "acesso",
+            "pagamento",
+            "bug",
+            "cadastro",
+            "entrega",
+            "duvida"
+          ],
+          "linhas": [
+            [
+              7,
+              0,
+              1,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              5,
+              0,
+              0,
+              2,
+              3
+            ],
+            [
+              0,
+              0,
+              7,
+              0,
+              1,
+              3
+            ],
+            [
+              0,
+              0,
+              0,
+              8,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              0,
+              2,
+              6,
+              2
+            ],
+            [
+              0,
+              0,
+              1,
+              4,
+              1,
+              4
+            ]
+          ]
+        }
+      },
+      "prioridade": {
+        "acuracia": 0.5081967213114754,
+        "f1Macro": 0.46910336040770817,
+        "f1Ponderado": 0.45069826823212417,
+        "porClasse": [
+          {
+            "classe": "baixa",
+            "precisao": 1,
+            "recall": 0.07692307692307693,
+            "f1": 0.14285714285714288,
+            "suporte": 13
+          },
+          {
+            "classe": "media",
+            "precisao": 0.4166666666666667,
+            "recall": 0.9523809523809523,
+            "f1": 0.5797101449275361,
+            "suporte": 21
+          },
+          {
+            "classe": "alta",
+            "precisao": 0.7142857142857143,
+            "recall": 0.2631578947368421,
+            "f1": 0.3846153846153846,
+            "suporte": 19
+          },
+          {
+            "classe": "urgente",
+            "precisao": 1,
+            "recall": 0.625,
+            "f1": 0.7692307692307693,
+            "suporte": 8
+          }
+        ],
+        "matriz": {
+          "rotulos": [
+            "baixa",
+            "media",
+            "alta",
+            "urgente"
+          ],
+          "linhas": [
+            [
+              1,
+              12,
+              0,
+              0
+            ],
+            [
+              0,
+              20,
+              1,
+              0
+            ],
+            [
+              0,
+              14,
+              5,
+              0
+            ],
+            [
+              0,
+              2,
+              1,
+              5
+            ]
+          ]
+        }
+      },
+      "fila": {
+        "acuracia": 0.5901639344262295,
+        "f1Macro": 0.6611198325484039,
+        "f1Ponderado": 0.6038911907764367,
+        "porClasse": [
+          {
+            "classe": "fila_acessos",
+            "precisao": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8,
+            "suporte": 9
+          },
+          {
+            "classe": "fila_infra",
+            "precisao": 1,
+            "recall": 1,
+            "f1": 1,
+            "suporte": 1
+          },
+          {
+            "classe": "fila_financeiro",
+            "precisao": 1,
+            "recall": 0.4444444444444444,
+            "f1": 0.6153846153846153,
+            "suporte": 9
+          },
+          {
+            "classe": "fila_engenharia",
+            "precisao": 0.7,
+            "recall": 0.6363636363636364,
+            "f1": 0.6666666666666666,
+            "suporte": 11
+          },
+          {
+            "classe": "fila_cadastro",
+            "precisao": 0.5714285714285714,
+            "recall": 0.8,
+            "f1": 0.6666666666666666,
+            "suporte": 10
+          },
+          {
+            "classe": "fila_logistica",
+            "precisao": 0.5454545454545454,
+            "recall": 0.6,
+            "f1": 0.5714285714285713,
+            "suporte": 10
+          },
+          {
+            "classe": "fila_atendimento",
+            "precisao": 0.26666666666666666,
+            "recall": 0.36363636363636365,
+            "f1": 0.30769230769230765,
+            "suporte": 11
+          }
+        ],
+        "matriz": {
+          "rotulos": [
+            "fila_acessos",
+            "fila_infra",
+            "fila_financeiro",
+            "fila_engenharia",
+            "fila_cadastro",
+            "fila_logistica",
+            "fila_atendimento"
+          ],
+          "linhas": [
+            [
+              6,
+              0,
+              0,
+              1,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              4,
+              0,
+              0,
+              2,
+              3
+            ],
+            [
+              0,
+              0,
+              0,
+              7,
+              0,
+              1,
+              3
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              8,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              2,
+              6,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              2,
+              4,
+              1,
+              4
+            ]
+          ]
+        }
+      },
+      "porTipo": {
+        "direto": {
+          "n": 21,
+          "acuraciaCategoria": 0.7142857142857143
+        },
+        "misto": {
+          "n": 25,
+          "acuraciaCategoria": 0.44
+        },
+        "ambiguo": {
+          "n": 15,
+          "acuraciaCategoria": 0.7333333333333333
+        }
+      }
+    }
+  ],
+  "falhas": []
+}

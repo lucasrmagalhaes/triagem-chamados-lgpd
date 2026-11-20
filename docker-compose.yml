@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: triagem
+      POSTGRES_PASSWORD: triagem
+      POSTGRES_DB: triagem
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U triagem -d triagem"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://triagem:triagem@postgres:5432/triagem
+      LIMIAR_CONFIANCA: "0.72"
+      MODELO_TRIAGEM: google/gemini-2.5-flash-lite
+      MODELO_EMBEDDING: openai/text-embedding-3-small
+      USAR_EMBEDDING_GATEWAY: "false"
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-https://cloud.langfuse.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
