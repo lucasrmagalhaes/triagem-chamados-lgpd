@@ -1,18 +1,18 @@
 # Triagem de chamados com LGPD
 
-Portfólio do Lucas para vagas de engenheiro de IA no Brasil. A API classifica chamados de suporte escritos em português informal (categoria, prioridade e fila) e tira CPF, email, telefone e nome do texto antes de qualquer embedding ou chamada de modelo.
+A API classifica chamados de suporte escritos em português informal (categoria, prioridade e fila) e tira CPF, email, telefone e nome do texto antes de qualquer embedding ou chamada de modelo.
 
 O cenário é um helpdesk interno de uma empresa fictícia de atacado. O sistema de chamados continua dono do texto original. Este serviço só devolve a triagem e guarda a versão mascarada.
 
 ## Problema
 
-Um time de suporte recebe texto solto: "não tô conseguindo login, a senha fica inválida", misturado com CPF e telefone. Alguém precisa escolher a fila. Um modelo ajuda, com três restrições que aparecem nas vagas:
+Um time de suporte recebe texto solto: "não tô conseguindo login, a senha fica inválida", misturado com CPF e telefone. Alguém precisa escolher a fila. Um modelo ajuda, com três restrições:
 
 - o dado pessoal não vai para o provedor do modelo
 - a saída tem de ser estruturada, com categoria, prioridade, fila e confiança
 - caso incerto vai para uma pessoa, e a decisão fica auditável
 
-## O que dá para mostrar numa entrevista
+## O que o projeto cobre
 
 - Agente com o Vercel AI SDK (`ToolLoopAgent`), duas ferramentas (`buscar_exemplos` e `politica_de_fila`) e saída Zod (`Output.object`)
 - Few-shot por vizinhos no Postgres com pgvector
@@ -138,7 +138,7 @@ Rótulo: acesso, média, `fila_acessos`. O texto não diz "login" nem "senha", e
 
 ## Métricas
 
-Rodada em 20/11/2026 (`eval/resultados/ultimo.json`, `geradoEm` `2026-11-20T02:41:55.649Z`). Holdout de 61 chamados. Limiar 0,72. Nenhuma chave de modelo estava disponível, então estes números são do classificador heurístico local, com custo 0 USD e 0 tokens. A tabela dos LLMs continua vazia de propósito: ela só enche com `AI_GATEWAY_API_KEY` e `AVALIACAO_REAL=true`.
+Rodada em 20/11/2026 (`eval/resultados/ultimo.json`, `geradoEm` `2026-11-20T02:41:55.649Z`). Holdout de 61 chamados. Limiar 0,72. Esta rodada não usou chave de modelo: os números são do classificador heurístico local, com custo 0 USD e 0 tokens. A tabela dos LLMs continua vazia de propósito: ela só enche com `AI_GATEWAY_API_KEY` e `AVALIACAO_REAL=true`.
 
 O baseline conta palavras. A busca vetorial entra no prompt do agente e no campo `exemplosUsados`. O voto dos vizinhos fica de fora da conta do heurístico, para o F1 continuar interpretável.
 
