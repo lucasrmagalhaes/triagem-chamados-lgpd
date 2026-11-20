@@ -1,6 +1,6 @@
 # Triagem de chamados com LGPD
 
-A API classifica chamados de suporte escritos em português informal (categoria, prioridade e fila) e tira CPF, email, telefone e nome do texto antes de qualquer embedding ou chamada de modelo.
+A API classifica chamados de suporte escritos em português informal (categoria, prioridade e fila). Antes de qualquer embedding ou chamada de modelo, ela mascara CPF, email, telefone e nome nos formatos que o detector conhece. A cobertura tem limites conhecidos, listados em [Limites do mascaramento](#limites-do-mascaramento).
 
 O cenário é um helpdesk interno de uma empresa fictícia de atacado. O sistema de chamados continua dono do texto original. Este serviço só devolve a triagem e guarda a versão mascarada.
 
@@ -15,12 +15,12 @@ Um time de suporte recebe texto solto: "não tô conseguindo login, a senha fica
 ## O que o projeto cobre
 
 - Agente com o Vercel AI SDK (`ToolLoopAgent`), duas ferramentas (`buscar_exemplos` e `politica_de_fila`) e saída Zod (`Output.object`)
-- Few-shot por vizinhos no Postgres com pgvector
-- Guardrail de LGPD testado: o mascaramento acontece antes do embedding e do agente
+- Few-shot por vizinhos. No modo padrão, o índice fica em memória, com embedding por hash de n-gramas. A versão em Postgres com pgvector está escrita, mas nunca foi executada
+- Mascaramento antes do embedding e do agente, com uma checagem em cada fronteira. A checagem roda o mesmo detector do mascaramento: ela protege contra um caminho que esqueça de mascarar, não contra um formato que o detector não conhece
 - Limiar de confiança e fila de revisão humana
 - Log de auditoria sem o texto cru
 - Avaliação com precisão, recall, F1 por classe e matriz de confusão
-- Comparação de custo entre três modelos do AI Gateway, pronta para rodar com chave
+- Comparação de custo entre três modelos do AI Gateway, escrita mas nunca executada com chave
 - Langfuse opcional, ligado só quando as variáveis existem
 - API NestJS, Docker e um esqueleto Terraform de ECS Fargate na `sa-east-1`
 
@@ -49,13 +49,29 @@ flowchart TD
 O fluxo de um `POST /chamados`:
 
 1. Mascara o texto e calcula o SHA-256 do original.
-2. O guardrail roda de novo. Se ainda houver CPF, email, telefone ou nome no formato coberto, a chamada para e o audit log grava só o hash e os tipos.
+2. O guardrail roda de novo. Se ainda houver CPF, email, telefone ou nome no formato coberto, a chamada para e o audit log grava só o hash e os tipos. Como ele usa o mesmo detector, depois do mascaramento ele não dispara.
 3. Gera o embedding do texto mascarado e busca até 4 exemplos no pgvector.
 4. O agente devolve categoria, prioridade, fila, confiança e uma justificativa curta.
 5. Confiança abaixo de 0,72 manda o chamado para `fila_revisao`. O modelo não escolhe essa fila.
 6. A auditoria grava a decisão. O corpo do chamado guardado é o texto mascarado.
 
-Sem `AI_GATEWAY_API_KEY`, o mesmo fluxo usa um classificador heurístico local. Os testes e o GitHub Actions usam esse caminho.
+Sem `AI_GATEWAY_API_KEY`, o mesmo fluxo usa um classificador heurístico local. Os testes e o GitHub Actions usam esse caminho. O caminho com modelo nunca rodou com chave.
+
+## Limites do mascaramento
+
+O detector junta regex de formato fixo com uma lista fixa de nomes e sobrenomes. Um nome fora da lista só é pego depois de um gatilho como "me chamo" ou "aqui é o". Estes exemplos passam sem máscara:
+
+- nome fora da lista, sem gatilho: "o Thiago Lima do financeiro nao consegue logar";
+- assinatura: "Att, Thiago Lima";
+- CPF com espaços: "390 533 447 05";
+- telefone com espaço ou ponto: "11 98888 7777" e "51 99876.5432".
+
+Também há falso positivo que muda o sentido do texto: "a loja de São Paulo" vira "a loja de São [NOME_1]".
+
+Outros limites:
+- o campo `referenciaExterna` não passa pelo mascaramento;
+- o `hashOriginal` é um SHA-256 sem sal do texto cru;
+- o dataset e os testes usam nomes da própria lista do mascarador, então não medem a cobertura com nomes que ele não conhece.
 
 ## Como rodar
 
@@ -78,7 +94,7 @@ curl -s localhost:3000/chamados \
 curl -s localhost:3000/revisao
 ```
 
-A resposta traz `textoMascarado` com `[CPF_1]`. O CPF original não volta na API, na revisão nem na auditoria.
+A resposta traz `textoMascarado` com `[CPF_1]`. Nesse formato, o CPF original não volta na API, na revisão nem na auditoria. Escrito com espaços, ele passa cru (ver [Limites do mascaramento](#limites-do-mascaramento)).
 
 ### Postgres e pgvector
 
@@ -142,9 +158,14 @@ Rodada em 20/11/2026 (`eval/resultados/ultimo.json`, `geradoEm` `2026-11-20T02:4
 
 O baseline conta palavras. A busca vetorial entra no prompt do agente e no campo `exemplosUsados`. O voto dos vizinhos fica de fora da conta do heurístico, para o F1 continuar interpretável.
 
+Os números medem mais o dataset do que o classificador:
+- **Mistura do gerador.** O gerador escreve parte dos chamados com as palavras que o heurístico procura e parte sem nenhuma delas. No holdout, o heurístico acerta 26 de 27 itens do primeiro grupo e 0 de 19 do segundo, então a acurácia de categoria mede sobretudo essa mistura.
+- **Holdout parecido com o treino.** 47 dos 61 itens do holdout têm no treino a mesma frase-base com o mesmo rótulo. Isso deve inflar a nota de um LLM com few-shot.
+- **Fila.** O rótulo de fila sai da mesma política usada na previsão, então a métrica de fila acrescenta pouco à de categoria.
+
 Na prioridade, o heurístico cai em média quando não vê "hoje", "urgente", "sem pressa" e outras poucas expressões. A maior parte do conjunto só implica a urgência pela situação. Por isso o recall de média fica alto (0,952) e o de baixa fica baixo (0,077). O F1 macro de 0,469 é esse piso lexical, neste holdout.
 
-A confiança sobe pouco com um único sinal. 46 dos 61 chamados ficam abaixo de 0,72 e iriam para revisão. Nos 15 que passam, a categoria acerta 12.
+A confiança do heurístico é 0,42 + 0,55 × margem. Um único sinal dá sempre 0,695, logo abaixo do limiar de 0,72, que não foi calibrado. Por isso 46 dos 61 chamados iriam para revisão, e a taxa de 0,754 vem da fórmula e do limiar. Nos 15 que passam, a categoria acerta 12.
 
 ### Resumo do heuristico-local
 
@@ -248,12 +269,19 @@ terraform apply -var 'imagem_container=123456789012.dkr.ecr.sa-east-1.amazonaws.
 
 Ajuste `versao_postgres` para uma versão 16 disponível na região. O listener do balanceador está na porta 80. O passo seguinte é certificado no ACM e redirect para 443.
 
+Antes de aplicar, considere dois pontos:
+- A API não tem autenticação. Com o Terraform como está, a fila de revisão e a auditoria ficam abertas na internet, e qualquer pessoa grava decisões.
+- O RDS PostgreSQL 16 exige SSL por padrão, e a conexão da aplicação não configura SSL.
+
 ## Testes e CI
 
 `npm test` cobre o mascaramento, o guardrail que impede a chamada ao modelo, o limiar de revisão, a métrica de F1, o contrato do dataset e a API HTTP. `npm run avaliar` repete o holdout. O workflow `.github/workflows/ci.yml` roda typecheck, testes, avaliação heurística e build. Nenhum dos dois gasta crédito de modelo.
 
 ## Próximos passos
 
+- Medir o recall do mascaramento com PII que o gerador não conhece e cobrir os formatos de [Limites do mascaramento](#limites-do-mascaramento)
+- Autenticação na API antes de qualquer deploy
+- Separar o holdout por frase-base, para o few-shot não ver o gêmeo do item avaliado
 - Rodar o trio de modelos no holdout e preencher a tabela de custo versus acurácia
 - Calibrar o limiar com o custo de um urgente errado e o custo da fila humana
 - Trocar o conjunto sintético por chamados reais já anonimizados, rotulados com o time de suporte
